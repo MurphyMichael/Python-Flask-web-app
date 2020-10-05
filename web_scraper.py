@@ -5,9 +5,9 @@ from bs4 import BeautifulSoup
 # URL - database source
 url = 'https://reelgood.com/movies'
 
-# Parse Html content on webpage
+# get text request of given 'url'
 html_content = requests.get(url).text
-# Parse the html content
+# Parse the html content using beautiful soup package
 soup = BeautifulSoup(html_content, "lxml")
 
 # Find assign table class and table rows
