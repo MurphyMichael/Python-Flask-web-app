@@ -59,14 +59,14 @@ def main(argv):
     movie_dict = create_dict(movie_names, movie_ratings)            # Creating movie dictionary
     pickle_data(movie_dict)                                         # Pickle dictionary
 
-    '''
+    
     # Pickled data Handling:
     # load the pickled movie dictonaries
     with open('movies.pickle', 'rb') as handle:
         b = pickle.load(handle)
 
-    print(movie_dict==b) # Check if the pickled data  is loaded successfully
-    '''
+    print(movie_dict) # Check if the pickled data  is loaded successfully
+    
     
 
 if __name__ == "__main__":
