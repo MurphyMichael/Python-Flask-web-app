@@ -17,6 +17,8 @@ db = SQLAlchemy(app)
 
 #User database class
 class UserDB(db.Model):
+
+    __tablename__ = 'user'
     
     id = db.Column(db.Integer, primary_key=True, )
     username = db.Column(db.String(25), unique=True, nullable=False)
@@ -35,6 +37,8 @@ class UserDB(db.Model):
 #movie and show database class
 class MovieShowDB(db.Model):
 
+    __tablename__ = 'movie'
+
     id = db.Column(db.Integer, primary_key=True, )
     title = db.Column(db.String(80), nullable=False, unique=True)
     yearReleased = db.Column(db.String(5), unique=True, nullable=False)
@@ -50,6 +54,18 @@ class MovieShowDB(db.Model):
         self.description = description
         self._type = _type
 
+# watched list class connected by userID so it is just for that user, and movieID
+class WatchedList(db.Model):
+
+    userID = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    movieID = db.Column(db.Integer, db.ForeignKey('movie.id'), nullable=False)
+    movieName = db.Column(db.String(50), nullable=False)
+
+    def __init__(self, userID, movieID, movieName):
+
+        self.userID = userID
+        self.movieID = movieID
+        self.movieName = movieName
 
 # NOTHING BELOW THIS LINE NEEDS TO CHANGE
 # this route will test the database connection and nothing more
