@@ -1,6 +1,6 @@
 from flask import render_template, url_for, flash, redirect, request
 from app import app, db, bcrypt
-from app.models import User, MovieShowDB, WatchedList
+from app.models import User, MovieDB, WatchedList
 from app.forms import RegistrationForm, LoginForm
 from flask_login import login_user, current_user, logout_user, login_required
 
