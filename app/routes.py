@@ -3,6 +3,9 @@ from app import app, db, bcrypt
 from app.models import User, MovieDB, WatchedList
 from app.forms import RegistrationForm, LoginForm
 from flask_login import login_user, current_user, logout_user, login_required
+import imdb
+import pandas as pd
+import imdb.helpers
 
 posts = [
     {
@@ -17,7 +20,18 @@ posts = [
 # route for the homepage
 @app.route('/')
 def Home():
-    return  render_template('home.html')
+    movies = imdb.IMDb()
+
+    #assign "get top 250" function to variable search
+    search_top = movies.get_top250_movies()
+
+    #assing key:value to dict, moviesDF_top{'id': 'name'}
+    moviesDF_top = pd.DataFrame(columns = ['id', 'title'])
+    for name in search_top:
+        ids = name.movieID
+        moviesDF_top = moviesDF_top.append({'id' : ids, 'title': str(name) }, ignore_index=True)
+
+    return  render_template('home.html', data=moviesDF_top.to_html())
 
 
 # route that displays the register form
