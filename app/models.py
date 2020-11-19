@@ -1,6 +1,12 @@
-from app import db
+from app import db, loginManager
+from flask_login import UserMixin
 
-class User(db.Model):
+@loginManager.user_loader
+def LoadUser(userID):
+    return User.query.get(int(userID))
+
+# user class model, contains user info as well as the users watched list that is a relationship to user.
+class User(db.Model, UserMixin):
 
     __tablename__ = 'user'
     
@@ -15,8 +21,8 @@ class User(db.Model):
 
     
 
-#movie and show database class
-class MovieShowDB(db.Model):
+#movie database class that contains movie data and is many to many relationship with WatchedList
+class MovieDB(db.Model):
 
     __tablename__ = 'movie'
 
@@ -27,9 +33,12 @@ class MovieShowDB(db.Model):
     description = db.Column(db.String(1000), unique=False, nullable=False)
     _type = db.Column(db.Boolean, unique=False, nullable=False)
     runtime = db.Column(db.Integer, nullable=False)
+
+    def __repr__(self):
+        return f"User('{self.title}', '{self.yearReleased}')"
     
 
-# watched list class connected by userID so it is just for that user, and movieID
+# WatchedList database class, that is stored with the user and shows the user what movies they have watched
 class WatchedList(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
