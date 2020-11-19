@@ -17,7 +17,7 @@ posts = [
 # route for the homepage
 @app.route('/')
 def Home():
-    return  render_template('home.html', posts=posts)
+    return  render_template('home.html')
 
 
 # route that displays the register form

@@ -33,7 +33,7 @@ search_top = movies.get_top250_movies()
 #assing key:value to dict, moviesDF_top{'id': 'name'}
 moviesDF_top = pd.DataFrame(columns = ['id', 'title'])
 for name in search_top:
-	ids = name.movieID 
+	ids = name.movieID
 	moviesDF_top = moviesDF_top.append({'id' : ids, 'title': str(name) }, ignore_index=True)
 """
 poster_list = []
