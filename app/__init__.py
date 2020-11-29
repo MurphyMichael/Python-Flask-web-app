@@ -25,16 +25,16 @@ loginManager.login_view = 'Login'
 loginManager.login_message_category = 'info'
 from app import routes
 
-movies = imdb.IMDb()
+# movies = imdb.IMDb()
 
-#assign "get top 250" function to variable search
-search_top = movies.get_top250_movies()
+# #assign "get top 250" function to variable search
+# search_top = movies.get_top250_movies()
 
-#assing key:value to dict, moviesDF_top{'id': 'name'}
-moviesDF_top = pd.DataFrame(columns = ['id', 'title'])
-for name in search_top:
-	ids = name.movieID
-	moviesDF_top = moviesDF_top.append({'id' : ids, 'title': str(name) }, ignore_index=True)
+# #assing key:value to dict, moviesDF_top{'id': 'name'}
+# moviesDF_top = pd.DataFrame(columns = ['id', 'title'])
+# for name in search_top:
+# 	ids = name.movieID
+# 	moviesDF_top = moviesDF_top.append({'id' : ids, 'title': str(name) }, ignore_index=True)
 """
 poster_list = []
 for name in search_top:

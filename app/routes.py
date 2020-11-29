@@ -1,18 +1,11 @@
 from flask import render_template, url_for, flash, redirect, request
+import secrets
+import os
+from PIL import Image
 from app import app, db, bcrypt
 from app.models import User, MovieDB, WatchedList
-from app.forms import RegistrationForm, LoginForm
+from app.forms import RegistrationForm, LoginForm, UpdateUserAccountForm
 from flask_login import login_user, current_user, logout_user, login_required
-
-posts = [
-    {
-        'author' : 'Michael Murphy',
-        'title' : 'Blog Post',
-        'content' : 'First post content',
-        'date_posted' : 'Today'
-    }
-
-]
 
 # route for the homepage
 @app.route('/')
@@ -59,9 +52,39 @@ def Logout():
     return redirect(url_for('Home'))
 
 
+def saveUserPicture(form_picture):
+    random = secrets.token_hex(8)
+    _, f_ext = os.path.splitext(form_picture.filename)
+    fileName = random + f_ext
+    picturePath = os.path.join(app.root_path, 'static/profilepics', fileName)
+    outputSize = (125, 125)
+    resize = Image.open(form_picture)
+    resize.thumbnail(outputSize)
+    resize.save(picturePath)
+
+    return fileName
+
 # route for the user's account page
-@app.route('/account')
+@app.route('/account', methods=['GET','POST'])
 @login_required
 def Account():
+    form = UpdateUserAccountForm()
+    if form.validate_on_submit():
+        if form.userImage.data:
+            profilePictureFile = saveUserPicture(form.userImage.data)
+            current_user.profilePic = profilePictureFile
+        current_user.username = form.username.data
+        current_user.email = form.email.data
+        db.session.commit()
+        flash('Your account has been updated!', 'success')
+        return redirect(url_for('Account'))
+    elif request.method == 'GET':
+        form.username.data = current_user.username
+        form.email.data = current_user.email
+    image = url_for('static', filename='profilepics/'+ current_user.profilePic)
+    return render_template('account.html', title='Account', image=image, form=form)
 
-    return render_template('account.html', title='Account')
+@app.route('/watchedlist')
+@login_required
+def Watched_List():
+   return render_template('watchedlist.html', title='Watched List')
