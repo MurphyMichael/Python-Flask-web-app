@@ -36,7 +36,7 @@ class UpdateUserAccountForm(FlaskForm):
 
     username = StringField('Username', validators=[DataRequired(), Length(min=5, max=20)])
     email = StringField('Email', validators=[DataRequired(), Email()])
-    userImage = FileField('Update Profile Pic', validators=[FileAllowed(['jpg', 'png'])])
+    userImage = FileField('Change Profile Picture', validators=[FileAllowed(['jpg', 'png'])])
     submit = SubmitField('Update')
 
     def validate_username(self, username):
@@ -50,3 +50,18 @@ class UpdateUserAccountForm(FlaskForm):
             email = User.query.filter_by(email=email.data).first()
             if email:
                 raise ValidationError('That email is taken. Please choose another email.')
+
+class ResetForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    submit = SubmitField('Password Reset')
+
+    def validate_email(self, email):
+        email = User.query.filter_by(email=email.data).first()
+        if email is None:
+            raise ValidationError('No account with that email. Please register first.')
+
+class ResetPasswordForm(FlaskForm):
+
+    password = PasswordField('Password', validators=[DataRequired()])
+    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Reset Password')

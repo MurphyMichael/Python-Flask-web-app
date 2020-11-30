@@ -1,5 +1,6 @@
-from app import db, loginManager
+from app import db, loginManager, app
 from flask_login import UserMixin
+from itsdangerous import TimedJSONWebSignatureSerializer as serial
 
 @loginManager.user_loader
 def LoadUser(userID):
@@ -20,7 +21,18 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return f"User('{self.username}', '{self.email}')"
 
-    
+    def GetResetToken(self, expires_sec=3600):
+        token = serial(app.config['SECRET_KEY'], expires_sec)
+        return token.dumps({'userID': self.id}).decode('utf-8')
+
+    @staticmethod
+    def VerifyResetToken(token):
+        temp = serial(app.config['SECRET_KEY'])
+        try:
+            userID = temp.loads(token)['userID']
+        except:
+            return None
+        return User.query.get(userID)
 
 #movie database class that contains movie data and is many to many relationship with WatchedList
 class MovieDB(db.Model):

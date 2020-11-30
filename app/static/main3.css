@@ -7,6 +7,15 @@ body {
   h1, h2, h3, h4, h5, h6 {
     color: #c7c7c7;
   }
+
+  .btn-secondary, .btn-secondary:hover, .btn-secondary:active, .btn-secondary:visited {
+    background-color: #444444 !important;
+  }
+
+  .btn-outline-secondary {
+    background-color: transparent;
+    background-image: none;
+}
   
   .bg-steel {
     background-color: #444444;

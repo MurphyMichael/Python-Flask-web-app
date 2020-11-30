@@ -1,8 +1,9 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
-import os.path
+import os
 from flask_login import LoginManager
+from flask_mail import Mail
 import imdb
 import pandas as pd
 import imdb.helpers
@@ -23,6 +24,13 @@ bcrypt = Bcrypt(app)
 loginManager = LoginManager(app)
 loginManager.login_view = 'Login'
 loginManager.login_message_category = 'info'
+app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'UNT3444group4@gmail.com'
+app.config['MAIL_PASSWORD']	= 'QWERTYpassword123'
+mail = Mail(app)
+
 from app import routes
 
 # movies = imdb.IMDb()
