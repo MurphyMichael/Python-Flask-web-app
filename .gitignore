@@ -1,4 +1,5 @@
 .pickle
 __pycache__
 test.py
-secrets.py
+dummyemail.py
+settings.json

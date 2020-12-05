@@ -7,7 +7,7 @@ from flask_mail import Mail
 import imdb
 import pandas as pd
 import imdb.helpers
-import secrets as secret
+import dummyemail as secret
 
 # no changes
 

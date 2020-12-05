@@ -127,7 +127,7 @@ def saveUserPicture(form_picture):
     _, f_ext = os.path.splitext(form_picture.filename)
     fileName = random + f_ext
     picturePath = os.path.join(app.root_path, 'static/profilepics', fileName)
-    outputSize = (300, 300)
+    outputSize = (175, 175)
     resize = Image.open(form_picture)
     resize.thumbnail(outputSize)
     resize.save(picturePath)
