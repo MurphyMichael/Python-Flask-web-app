@@ -15,7 +15,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(25), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
-    profilePic = db.Column(db.String(30), nullable=False, default='default.jpg')
+    profilePic = db.Column(db.String(30), nullable=False, default='default.png')
     watchedlist = db.relationship('WatchedList', backref='owner', lazy=True)
     
     def __repr__(self):
@@ -44,7 +44,6 @@ class MovieDB(db.Model):
     yearReleased = db.Column(db.String(5), unique=True, nullable=False)
     genre = db.Column(db.String(25), unique=False, nullable=False)
     description = db.Column(db.String(1000), unique=False, nullable=False)
-    _type = db.Column(db.Boolean, unique=False, nullable=False)
     runtime = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):

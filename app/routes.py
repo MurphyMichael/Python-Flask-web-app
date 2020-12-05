@@ -120,6 +120,12 @@ def ResetRequestToken(token):
         return redirect(url_for('Login'))
     return render_template('resettoken.html', title='Reset Password', form=form)
 
+
+# route to handle 404 errors and to send you back to home with a link
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html', title='404')
+
 #         ###########functions to help in certain routes###########
 
 
@@ -129,7 +135,7 @@ def saveUserPicture(form_picture):
     _, f_ext = os.path.splitext(form_picture.filename)
     fileName = random + f_ext
     picturePath = os.path.join(app.root_path, 'static/profilepics', fileName)
-    outputSize = (175, 175)
+    outputSize = (125, 125)
     resize = Image.open(form_picture)
     resize.thumbnail(outputSize)
     resize.save(picturePath)
