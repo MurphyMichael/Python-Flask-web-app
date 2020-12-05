@@ -37,11 +37,12 @@
                 </div>
             </fieldset>
             <div class="form-group">
-                {{ form.submit(class="btn btn-outline-info") }}
+                {{ form.submit(class="btn btn-secondary") }}
+                <small class="text-muted ml-2">
+                    <a href="{{ url_for('ResetRequest')}}">Forgot Password?</a>
+                </small>
             </div>
-            <small class="text-muted ml-2">
-                <a href="#">Forgot Password?</a>
-            </small>
+            
         </form>
     </div>
     <div class="border-top pt-3">

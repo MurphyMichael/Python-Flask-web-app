@@ -1,18 +1,13 @@
 from flask import render_template, url_for, flash, redirect, request
-from app import app, db, bcrypt
+import secrets
+import os
+from PIL import Image
+from app import app, db, bcrypt, mail
 from app.models import User, MovieDB, WatchedList
-from app.forms import RegistrationForm, LoginForm
+from app.forms import RegistrationForm, LoginForm, UpdateUserAccountForm, ResetForm, ResetPasswordForm
+from flask_mail import Message
 from flask_login import login_user, current_user, logout_user, login_required
 
-posts = [
-    {
-        'author' : 'Michael Murphy',
-        'title' : 'Blog Post',
-        'content' : 'First post content',
-        'date_posted' : 'Today'
-    }
-
-]
 
 # route for the homepage
 @app.route('/')
@@ -52,6 +47,7 @@ def Login():
             flash('Login Unsuccessful. Please check email and password', 'danger')
     return render_template('login.html', title='Login', form=form)
 
+
 # route that logouts users when they click on "Logout", redirects to home
 @app.route('/logout')
 def Logout():
@@ -60,8 +56,92 @@ def Logout():
 
 
 # route for the user's account page
-@app.route('/account')
+@app.route('/account', methods=['GET','POST'])
 @login_required
 def Account():
+    form = UpdateUserAccountForm()
+    if form.validate_on_submit():
+        if form.userImage.data:
+            profilePictureFile = saveUserPicture(form.userImage.data)
+            current_user.profilePic = profilePictureFile
+        current_user.username = form.username.data
+        current_user.email = form.email.data
+        db.session.commit()
+        flash('Your account has been updated!', 'success')
+        return redirect(url_for('Account'))
+    elif request.method == 'GET':
+        form.username.data = current_user.username
+        form.email.data = current_user.email
+    image = url_for('static', filename='profilepics/'+ current_user.profilePic)
+    return render_template('account.html', title='Account', image=image, form=form)
 
-    return render_template('account.html', title='Account')
+
+# route for the current user's watched list of movies. Will only show up if you are logged in.
+@app.route('/watchedlist')
+@login_required
+def Watched_List():
+   return render_template('watchedlist.html', title='Watched List')
+
+
+# route to request password reset.
+@app.route('/resetpassword', methods=['GET','POST'])
+def ResetRequest():
+    if current_user.is_authenticated:
+        return redirect(url_for('Home'))
+
+    form = ResetForm()    
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        SendEmail(user)
+        flash('Email sent with password reset instructions.', 'info')
+        return redirect(url_for('Login'))
+    return render_template('resetrequest.html', title='Reset Password', form=form)
+
+
+# where the password resetting happens with the token.
+@app.route('/resetpassword/<token>', methods=['GET','POST'])
+def ResetRequestToken(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('Home'))
+
+    user = User.VerifyResetToken(token)
+    if user is None:
+        flash('Your reset token is invalid or has expired.', 'warning')
+        return redirect(url_for('ResetRequest'))
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        hashedPassword = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user.password = hashedPassword
+        db.session.commit()
+        flash('Your password has been successfully changed!', 'success')
+        return redirect(url_for('Login'))
+    return render_template('resettoken.html', title='Reset Password', form=form)
+
+
+ #         ###########functions to help in certain routes###########
+
+
+# this function resized and saves pictures in the path app/static/profilepics
+def saveUserPicture(form_picture):
+    random = secrets.token_hex(8)
+    _, f_ext = os.path.splitext(form_picture.filename)
+    fileName = random + f_ext
+    picturePath = os.path.join(app.root_path, 'static/profilepics', fileName)
+    outputSize = (300, 300)
+    resize = Image.open(form_picture)
+    resize.thumbnail(outputSize)
+    resize.save(picturePath)
+
+    return fileName
+
+
+def SendEmail(user):
+    token = user.GetResetToken()
+    message = Message('Group4 Movie Database - Password Reset', sender='dontreply@grp4moviedb.com', recipients=[user.email])
+    message.body = f''' Click on the link to reset your password!
+{url_for('ResetRequestToken', token=token, _external=True)}
+
+If you didn't request a password change, please ignore this message.
+'''
+
+    mail.send(message)

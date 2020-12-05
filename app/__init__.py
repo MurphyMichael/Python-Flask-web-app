@@ -1,11 +1,13 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
-import os.path
+import os
 from flask_login import LoginManager
+from flask_mail import Mail
 import imdb
 import pandas as pd
 import imdb.helpers
+import secrets as secret
 
 # no changes
 
@@ -23,18 +25,25 @@ bcrypt = Bcrypt(app)
 loginManager = LoginManager(app)
 loginManager.login_view = 'Login'
 loginManager.login_message_category = 'info'
+app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = secret.USER
+app.config['MAIL_PASSWORD']	= secret.PASS
+mail = Mail(app)
+
 from app import routes
 
-movies = imdb.IMDb()
+# movies = imdb.IMDb()
 
-#assign "get top 250" function to variable search
-search_top = movies.get_top250_movies()
+# #assign "get top 250" function to variable search
+# search_top = movies.get_top250_movies()
 
-#assing key:value to dict, moviesDF_top{'id': 'name'}
-moviesDF_top = pd.DataFrame(columns = ['id', 'title'])
-for name in search_top:
-	ids = name.movieID
-	moviesDF_top = moviesDF_top.append({'id' : ids, 'title': str(name) }, ignore_index=True)
+# #assing key:value to dict, moviesDF_top{'id': 'name'}
+# moviesDF_top = pd.DataFrame(columns = ['id', 'title'])
+# for name in search_top:
+# 	ids = name.movieID
+# 	moviesDF_top = moviesDF_top.append({'id' : ids, 'title': str(name) }, ignore_index=True)
 """
 poster_list = []
 for name in search_top:
