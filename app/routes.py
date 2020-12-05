@@ -21,6 +21,7 @@ def Register():
     if current_user.is_authenticated:
         return redirect(url_for('Home'))
     form = RegistrationForm()
+    # if the form the user submitted is valid, then add them to the DB in the user table
     if form.validate_on_submit():
         hashedPassword = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         user = User(username=form.username.data, email=form.email.data, password=hashedPassword)
@@ -37,6 +38,7 @@ def Login():
     if current_user.is_authenticated:
         return redirect(url_for('Home'))
     form = LoginForm()
+    # if the the form submitted is valid, check to see if they exist by email, and check the password, if both are correct, log the user in.
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
@@ -56,6 +58,8 @@ def Logout():
 
 
 # route for the user's account page
+# This is a short profile page that only the user is able to see
+# The user can change their email and username here, as well as their profile picture.
 @app.route('/account', methods=['GET','POST'])
 @login_required
 def Account():
@@ -88,8 +92,8 @@ def Watched_List():
 def ResetRequest():
     if current_user.is_authenticated:
         return redirect(url_for('Home'))
-
-    form = ResetForm()    
+    form = ResetForm()
+    # if the email was found, a email will be sent with a password reset link
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         SendEmail(user)
@@ -103,7 +107,6 @@ def ResetRequest():
 def ResetRequestToken(token):
     if current_user.is_authenticated:
         return redirect(url_for('Home'))
-
     user = User.VerifyResetToken(token)
     if user is None:
         flash('Your reset token is invalid or has expired.', 'warning')
@@ -117,24 +120,23 @@ def ResetRequestToken(token):
         return redirect(url_for('Login'))
     return render_template('resettoken.html', title='Reset Password', form=form)
 
+#         ###########functions to help in certain routes###########
 
- #         ###########functions to help in certain routes###########
 
-
-# this function resized and saves pictures in the path app/static/profilepics
+# this function resized and saves pictures in the path app/static/profilepics.
 def saveUserPicture(form_picture):
     random = secrets.token_hex(8)
     _, f_ext = os.path.splitext(form_picture.filename)
     fileName = random + f_ext
     picturePath = os.path.join(app.root_path, 'static/profilepics', fileName)
-    outputSize = (300, 300)
+    outputSize = (175, 175)
     resize = Image.open(form_picture)
     resize.thumbnail(outputSize)
     resize.save(picturePath)
 
     return fileName
 
-
+# the message that will be sent to the user if the email sent into the form is valid.
 def SendEmail(user):
     token = user.GetResetToken()
     message = Message('Group4 Movie Database - Password Reset', sender='dontreply@grp4moviedb.com', recipients=[user.email])
