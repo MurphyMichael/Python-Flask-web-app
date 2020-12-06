@@ -47,7 +47,7 @@ class MovieDB(db.Model):
     runtime = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
-        return f"User('{self.title}', '{self.yearReleased}')"
+        return f"'{self.title}', '{self.yearReleased}', '{self.genre}', '{self.description}', '{self.runtime}'"
     
 
 # WatchedList database class, that is stored with the user and shows the user what movies they have watched
