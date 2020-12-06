@@ -3,3 +3,4 @@ __pycache__
 test.py
 dummyemail.py
 settings.json
+*.pyc

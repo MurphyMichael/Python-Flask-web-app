@@ -8,6 +8,8 @@ import imdb
 import pandas as pd
 import imdb.helpers
 import dummyemail as secret
+from IPython.display import HTML
+
 
 
 app = Flask(__name__)
@@ -21,6 +23,18 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 ## various class calls from Flask classes for webapp functionality ##
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
+movies = imdb.IMDb()
+#assign "get top 250" function to variable search
+search_top = movies.get_top250_movies()
+#assing key:value to dict, moviesDF_top{'id': 'name'}
+moviesDF_top = pd.DataFrame(columns = ['poster_path', 'title'])
+poster_list = []
+for name in search_top:
+    ids = name.movieID
+    posterLink = "http://img.omdbapi.com/?i=tt" + ids + "&h=600&apikey=2dc44009"
+    moviesDF_top = moviesDF_top.append({'poster_path': str(posterLink), 'title': str(name)}, ignore_index=True)
+moviesDF_top.style.set_properties(**{'text-align': 'center'}).hide_index()
+
 
 # login manager for handling the current user logged in to handle multiple users.
 loginManager = LoginManager(app)
@@ -36,6 +50,9 @@ app.config['MAIL_PASSWORD']	= secret.PASS
 mail = Mail(app)
 
 from app import routes
+
+
+
 
 
 # if the SQL database already exists, don't create another one.

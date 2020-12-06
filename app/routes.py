@@ -2,11 +2,14 @@ from flask import render_template, url_for, flash, redirect, request
 import secrets
 import os
 from PIL import Image
-from app import app, db, bcrypt, mail
+from app import app, db, bcrypt, mail, moviesDF_top
 from app.models import User, MovieDB, WatchedList
 from app.forms import RegistrationForm, LoginForm, UpdateUserAccountForm, ResetForm, ResetPasswordForm, SearchForm
 from flask_mail import Message
 from flask_login import login_user, current_user, logout_user, login_required
+from omdbapi.movie_search import GetMovie
+import imdb
+
 
 
 # route for the homepage
@@ -14,8 +17,48 @@ from flask_login import login_user, current_user, logout_user, login_required
 def Home():
     form = SearchForm()
     if form.validate_on_submit():
-        return redirect(url_for('Home'))
+        search = SearchForm(request.form)
+        if request.method == 'POST':
+            return Results(search)
+        
+
     return  render_template('home.html', form=form)
+
+@app.route('/results/', methods=['GET', 'POST'])
+def Results(search):
+    searchStr = search.data['search']
+    #userChoice = search.select.data['choices']
+
+    if (len(searchStr) == 0):
+        print(moviesDF_top)
+
+
+   # moviesDF_top.style.format(make_clickable)
+    return render_template('results.html', column_names=moviesDF_top.columns.values, row_data=list(moviesDF_top.values.tolist()), link_column="poster_path", zip=zip)
+    
+
+def path_to_image_html(posterLink):
+    return '<img src="'+ posterLink + '" width="150" >'
+
+@app.route('/movie', methods=['GET', 'POST'])
+def movie():
+    ia = imdb.IMDb() 
+
+    movieName = request.args.get('title')
+
+    search = ia.search_movie(movieName) 
+    rand = ia.search_movie(movieName) 
+    movieID = rand[0].movieID
+    movie = ia.get_movie(movieID)
+    moviePlot = movie['plot outline'] 
+    movieRatings = movie['rating']
+    movieGenre = movie['genres']
+    poster = "http://img.omdbapi.com/?i=tt" + movieID + "&h=600&apikey=2dc44009"
+
+
+    
+
+    return render_template('movie.html', movieName=movieName, poster=poster, moviePlot = moviePlot, movieRatings = movieRatings, movieGenre = movieGenre)
 
 
 # route that displays the register form
