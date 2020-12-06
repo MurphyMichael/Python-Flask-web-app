@@ -13,9 +13,8 @@ import imdb.helpers
 
 
 # route for the homepage
-@app.route('/' , methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'PUT'])
 def Home():
-<<<<<<< HEAD
     movies = imdb.IMDb()
 
     #assign "get top 250" function to variable search
@@ -27,13 +26,17 @@ def Home():
         ids = name.movieID
         moviesDF_top = moviesDF_top.append({'id' : ids, 'title': str(name) }, ignore_index=True)
 
+    poster_list = []
+    for name in search_top:
+        ids = name.movieID
+        posterLink = "http://img.omdbapi.com/?i=tt" + ids + "&h=600&apikey=2dc44009"
+        poster_list += posterLink
+    moviesDF_top['poster path'] = poster_list
+
+
+
+
     return  render_template('home.html', data=moviesDF_top.to_html())
-=======
-    form = SearchForm()
-    if form.validate_on_submit():
-        return redirect(url_for('Home'))
-    return  render_template('home.html', form=form)
->>>>>>> 9efb89c0501429407afc06b192e0451db810b67a
 
 
 # route that displays the register form

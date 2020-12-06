@@ -38,24 +38,6 @@ mail = Mail(app)
 from app import routes
 
 
-<<<<<<< HEAD
-"""
-poster_list = []
-for name in search_top:
-	ids = name.movieID 
-	movieAccess = movies.get_movie(ids)
-	poster_list += movieAccess.data['cover url']
-moviesDF_top['poster_path'] = poster_list
-print(moviesDF_top['poster_path'])
-"""
-"""
-posterDF = pd.DataFrame(columns = ['poster_path'])
-for name in search_top:
-	m = movies.get_movie(name.movieID) # Avatar.
-	posterDF = posterDF.append({'poster_path': imdb.helpers.fullSizeCoverURL(m)}, ignore_index=True)
-"""
-=======
->>>>>>> 9efb89c0501429407afc06b192e0451db810b67a
 # if the SQL database already exists, don't create another one.
 if os.path.exists('site.db'):
     pass
