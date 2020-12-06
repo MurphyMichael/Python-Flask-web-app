@@ -24,7 +24,7 @@ def Home():
 
     return  render_template('home.html', form=form)
 
-@app.route('/results/', methods=['GET', 'POST'])
+@app.route('/results', methods=['GET', 'POST'])
 def Results(search):
     searchStr = search.data['search']
     #userChoice = search.select.data['choices']
@@ -48,17 +48,32 @@ def movie():
 
     search = ia.search_movie(movieName) 
     rand = ia.search_movie(movieName) 
-    movieID = rand[0].movieID
-    movie = ia.get_movie(movieID)
-    moviePlot = movie['plot outline'] 
-    movieRatings = movie['rating']
-    movieGenre = movie['genres']
-    poster = "http://img.omdbapi.com/?i=tt" + movieID + "&h=600&apikey=2dc44009"
+    M_ID = rand[0].movieID
+    mov = ia.get_movie(M_ID)
+    moviePlot = mov['plot outline'] 
+    movieRatings = mov['rating']
+    movieGenre = mov['genres']
+    poster = "http://img.omdbapi.com/?i=tt" + M_ID + "&h=600&apikey=2dc44009"
 
 
     
 
-    return render_template('movie.html', movieName=movieName, poster=poster, moviePlot = moviePlot, movieRatings = movieRatings, movieGenre = movieGenre)
+    return render_template('movie.html', M_ID = M_ID, movieName=movieName, poster=poster, moviePlot = moviePlot, movieRatings = movieRatings, movieGenre = movieGenre)
+
+
+@app.route('/addToWatchedList', methods=['GET', 'POST'])
+def addToWatchedList():
+    #@login_required
+    r = imdb.IMDb() 
+    ID = request.args.get('movies_ID')
+
+
+    name = r.get_movie(ID)
+    uID = current_user.id
+    genre = name['genres']
+    watchList = WatchedList(userID=uID, movieID=ID, movieName=name, movieGenre= genre)
+    db.session.add(watchList)
+    db.session.commit()
 
 
 # route that displays the register form
