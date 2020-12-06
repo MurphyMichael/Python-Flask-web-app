@@ -53,6 +53,8 @@ class MovieDB(db.Model):
 # WatchedList database class, that is stored with the user and shows the user what movies they have watched
 class WatchedList(db.Model):
 
+    __tablename__ = 'watchedlist'
+    
     id = db.Column(db.Integer, primary_key=True)
     userID = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     movieID = db.Column(db.Integer, db.ForeignKey('movie.id'), nullable=False)

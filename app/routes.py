@@ -4,15 +4,18 @@ import os
 from PIL import Image
 from app import app, db, bcrypt, mail
 from app.models import User, MovieDB, WatchedList
-from app.forms import RegistrationForm, LoginForm, UpdateUserAccountForm, ResetForm, ResetPasswordForm
+from app.forms import RegistrationForm, LoginForm, UpdateUserAccountForm, ResetForm, ResetPasswordForm, SearchForm
 from flask_mail import Message
 from flask_login import login_user, current_user, logout_user, login_required
 
 
 # route for the homepage
-@app.route('/')
+@app.route('/' , methods=['GET', 'POST'])
 def Home():
-    return  render_template('home.html')
+    form = SearchForm()
+    if form.validate_on_submit():
+        return redirect(url_for('Home'))
+    return  render_template('home.html', form=form)
 
 
 # route that displays the register form
