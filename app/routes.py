@@ -4,15 +4,18 @@ import os
 from PIL import Image
 from app import app, db, bcrypt, mail
 from app.models import User, MovieDB, WatchedList
-from app.forms import RegistrationForm, LoginForm, UpdateUserAccountForm, ResetForm, ResetPasswordForm
+from app.forms import RegistrationForm, LoginForm, UpdateUserAccountForm, ResetForm, ResetPasswordForm, SearchForm
 from flask_mail import Message
 from flask_login import login_user, current_user, logout_user, login_required
 
 
 # route for the homepage
-@app.route('/')
+@app.route('/' , methods=['GET', 'POST'])
 def Home():
-    return  render_template('home.html')
+    form = SearchForm()
+    if form.validate_on_submit():
+        return redirect(url_for('Home'))
+    return  render_template('home.html', form=form)
 
 
 # route that displays the register form
@@ -120,6 +123,12 @@ def ResetRequestToken(token):
         return redirect(url_for('Login'))
     return render_template('resettoken.html', title='Reset Password', form=form)
 
+
+# route to handle 404 errors and to send you back to home with a link
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html', title='404')
+
 #         ###########functions to help in certain routes###########
 
 
@@ -129,7 +138,7 @@ def saveUserPicture(form_picture):
     _, f_ext = os.path.splitext(form_picture.filename)
     fileName = random + f_ext
     picturePath = os.path.join(app.root_path, 'static/profilepics', fileName)
-    outputSize = (175, 175)
+    outputSize = (125, 125)
     resize = Image.open(form_picture)
     resize.thumbnail(outputSize)
     resize.save(picturePath)

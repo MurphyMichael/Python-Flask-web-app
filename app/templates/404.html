@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block content %}
+{% block body %}
+  <h1>Page Not Found</h1>
+  <p>What you were looking for is just not there.
+    {% if current_user.is_authenticated %}
+        <p><a style="color:rgb(250, 250, 250)" href="{{ url_for('Account') }}">Click here to go to your Account Page</a>
+    {% else %}
+    <p><a style="color:rgb(250, 250, 250)" href="{{ url_for('Login') }}">Click here for the Login Page</a>
+    {% endif %}
+{% endblock %}
+{% endblock content %}
