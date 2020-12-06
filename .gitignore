@@ -1,2 +1,5 @@
 .pickle
 __pycache__
+test.py
+dummyemail.py
+settings.json

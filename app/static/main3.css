@@ -7,6 +7,15 @@ body {
   h1, h2, h3, h4, h5, h6 {
     color: #c7c7c7;
   }
+
+  .btn-secondary, .btn-secondary:hover, .btn-secondary:active, .btn-secondary:visited {
+    background-color: #444444 !important;
+  }
+
+  .btn-outline-secondary {
+    background-color: transparent;
+    background-image: none;
+}
   
   .bg-steel {
     background-color: #444444;
@@ -27,7 +36,7 @@ body {
   .content-section {
     background: #333333;
     padding: 10px 20px;
-    border: 1px solid #c7c7c7;
+    border: 1px solid #636363;
     border-radius: 3px;
     margin-bottom: 20px;
   }
@@ -68,12 +77,6 @@ body {
     vertical-align: middle;
   }
   
-  .account-img {
-    height: 125px;
-    width: 125px;
-    margin-right: 20px;
-    margin-bottom: 16px;
-  }
   
   .account-heading {
     font-size: 2.5rem;

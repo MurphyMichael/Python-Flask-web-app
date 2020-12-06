@@ -37,16 +37,17 @@
                 </div>
             </fieldset>
             <div class="form-group">
-                {{ form.submit(class="btn btn-outline-info") }}
+                {{ form.submit(class="btn btn-secondary") }}
+                <small  class="text-muted ml-2">
+                    <a style="color:rgb(250, 250, 250)" href="{{ url_for('ResetRequest')}}">Forgot Password?</a>
+                </small>
             </div>
-            <small class="text-muted ml-2">
-                <a href="#">Forgot Password?</a>
-            </small>
+            
         </form>
     </div>
     <div class="border-top pt-3">
         <small class="text-muted">
-            Need An Account? <a class="ml-2" href="{{ url_for('Register') }}">Sign Up Now</a>
+            Need An Account? <a style="color:rgb(250, 250, 250)" class="ml-2" href="{{ url_for('Register') }}">Sign Up Now</a>
         </small>
     </div>
 {% endblock content %}
