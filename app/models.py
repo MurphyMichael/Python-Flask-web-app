@@ -59,4 +59,3 @@ class WatchedList(db.Model):
     userID = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     movieID = db.Column(db.Integer, db.ForeignKey('movie.id'), nullable=False)
     movieName = db.Column(db.String(50), nullable=False)
-    movieGenre = db.Column(db.String(120), unique=False, nullable=False)

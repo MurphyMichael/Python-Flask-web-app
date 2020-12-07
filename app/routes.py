@@ -46,8 +46,7 @@ def movie():
 
     movieName = request.args.get('title')
 
-    search = ia.search_movie(movieName) 
-    rand = ia.search_movie(movieName) 
+    rand = ia.search_movie(str(movieName)) 
     M_ID = rand[0].movieID
     mov = ia.get_movie(M_ID)
     moviePlot = mov['plot outline'] 
@@ -58,22 +57,30 @@ def movie():
 
     
 
-    return render_template('movie.html', M_ID = M_ID, movieName=movieName, poster=poster, moviePlot = moviePlot, movieRatings = movieRatings, movieGenre = movieGenre)
+    return render_template('movie.html', M_ID = int(M_ID), movieName=movieName, poster=poster, moviePlot = moviePlot, movieRatings = movieRatings, movieGenre = movieGenre)
 
 
 @app.route('/addToWatchedList', methods=['GET', 'POST'])
+@login_required
 def addToWatchedList():
-    #@login_required
     r = imdb.IMDb() 
     ID = request.args.get('movies_ID')
 
+    movieObject = r.get_movie(ID)
+    name = movieObject['title']
+    uID = current_user.get_id()
 
-    name = r.get_movie(ID)
-    uID = current_user.id
-    genre = name['genres']
-    watchList = WatchedList(userID=uID, movieID=ID, movieName=name, movieGenre= genre)
-    db.session.add(watchList)
-    db.session.commit()
+    watchList = WatchedList(userID=uID, movieID=int(ID), movieName=name)
+
+    check = WatchedList.query.filter_by(movieName=name, userID=uID).first()
+    if check != None:
+        flash(f"{ name } is already in your watched list", 'info')
+        return redirect(url_for('Home'))
+    else:
+        flash(f' {name} has been added to your watched list!', 'success')
+        db.session.add(watchList)
+        db.session.commit()
+        return redirect(url_for('Home'))
 
 
 # route that displays the register form
@@ -145,7 +152,9 @@ def Account():
 @app.route('/watchedlist')
 @login_required
 def Watched_List():
-   return render_template('watchedlist.html', title='Watched List')
+    
+
+    return render_template('watchedlist.html', data = WatchedList.query.filter_by(userID=current_user.get_id()).all())
 
 
 # route to request password reset.
