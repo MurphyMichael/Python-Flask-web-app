@@ -1,29 +1,21 @@
 {% extends "layout.html" %}
 {% block content %}
-    <div class="content-section">
+    <div class="content-section" style="width:700px;">
 
-        <table>
-		    <tr>
-		        {% for col in column_names %}
-		        <th>{{col}}</th>
-		        {% endfor %}
-		    </tr>
+        <table style="width:600px;">
 		    {% for row in row_data %}
 		    <tr>
 		        {% for col, row_ in zip(column_names, row) %}
-		        {% if col == link_column %}
-		        <td>
-		        	<img src=" {{ row_ }}" width="125" >
-		          
-		            
-		        </td>
-		        {% else %}
-		        <td> <a style="color:rgb(250, 250, 250)" href="{{url_for('movie', title=row_)}}"> {{row_}}</a> </td>
-		        {% endif %}
-		        {% endfor %}
+		        	{% if col == link_column %}
+		        		<td>
+		        			<img src=" {{ row_ }}" width="125" >
+		            	</td>
+		        	{% else %}
+		        		<td> <a style="color:rgb(250, 250, 250);" href="{{url_for('movie', title=row_)}}"> {{row_}}</a> </td>
+		        	{% endif %}
+				{% endfor %}
 		    </tr>
 		    {% endfor %}
-
 		</table>
 	</div>
 {% endblock content %}

@@ -2,17 +2,47 @@
 {% block content %}
 
 
-<div>
-<h1>Your Watch List:</h1>
-<br>
+<div class="content-section">
+  <h1>Your Watch List:</h1>
+  <br>
+  {% if data %}
+    
+    {% for row in data %}
+    <p>
+      <a style="color:rgb(250, 250, 250)" href="{{url_for('movie', title=row["movieName"])}}">{{row["movieName"]}}
+        <a href="{{url_for('DeleteFromWL', moviename=row["movieName"])}}">
+          <button type="button" class="btn btn-link btn-sm" style="color:red; float: right;" >
+            Delete
+          </button>
+        </a>
+      </a>
+    </p>
+    {% endfor %}
+  {% else %}
+    Nothing in your watched list yet!
+
+  {% endif %}
   
-	<ul>
-		{% for row in data %}
-			<li>{{row["movieName"]}}</li>
-		{% endfor %}
-	  
-	</ul>
 </div>
+    <div class="content-section" style="width:700px;">
+
+        <table style="width:600px;"> 
+        <h2> <u>Recommended Movies </u>:</h2>
+        {% for row in row_data %}
+        <tr>
+            {% for col, row_ in zip(column_names, row) %}
+              {% if col == link_column %}
+                <td>
+                  <img src=" {{ row_ }}" width="125" >
+                  </td>
+              {% else %}
+                <td> <a style="color:rgb(250, 250, 250);" href="{{url_for('movie', title=row_)}}"> {{row_}}</a> </td>
+              {% endif %}
+        {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+  </div>
 
 <style>
 h1 {

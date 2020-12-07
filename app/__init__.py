@@ -12,6 +12,7 @@ from IPython.display import HTML
 
 
 
+
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'aea103b9e51aee37e750b3e1ce0437ee'
@@ -23,17 +24,26 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 ## various class calls from Flask classes for webapp functionality ##
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
-movies = imdb.IMDb()
-#assign "get top 250" function to variable search
-search_top = movies.get_top250_movies()
-#assing key:value to dict, moviesDF_top{'id': 'name'}
-moviesDF_top = pd.DataFrame(columns = ['poster_path', 'title'])
+
+#read excel file into a df object, 'data'
+data = pd.read_excel(r"app/IMDB_Top250.xls") 
+data = data.dropna()  #clean dataset of null values
+
+#initialize another df to avoid redundancy and overwriting
+moviesDF_top = pd.DataFrame()
 poster_list = []
-for name in search_top:
-    ids = name.movieID
-    posterLink = "http://img.omdbapi.com/?i=tt" + ids + "&h=600&apikey=2dc44009"
-    moviesDF_top = moviesDF_top.append({'poster_path': str(posterLink), 'title': str(name)}, ignore_index=True)
-moviesDF_top.style.set_properties(**{'text-align': 'center'}).hide_index()
+
+#access OMDB api to assign move poster links to df
+for i, row in data.iterrows():
+    m_id = row["imdbID"]
+    #movie ID manually inserted into API call to access Movie poster
+    posterLink = "http://img.omdbapi.com/?i=" + m_id + "&h=600&apikey=2dc44009"
+    data.at[i, 'poster_path'] = posterLink
+
+#Assigning cleaned df to a copy
+data.rename(columns={"imdbID":"ids", "Title":"title", "Year":"year", "Genre":"genres"}, inplace = True)
+moviesDF_top = data.copy()
+
 
 
 # login manager for handling the current user logged in to handle multiple users.

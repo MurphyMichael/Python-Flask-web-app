@@ -1,11 +1,11 @@
 {% extends "layout.html" %}
 {% block content %}
 
-	<style>
+    <style>
 .kc_fab_main_btn{
   background-color:#F44336;
-  width:60px;
-  height:60px;
+  width: 40px;
+  height: 40px;
   border-radius:100%;
   background:#F44336;
   border:none;
@@ -13,11 +13,11 @@
   color:#FFF; 
   transition: all 0.5s;
   cursor: pointer;
-  position: relative;
   left: 600px;
-  top: 35px;
+  top: 30px;
+  float: right;
 
-  font-size:36px;
+  font-size: 20px;
   box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
   transition:.3s;  
   -webkit-tap-highlight-color: rgba(0,0,0,0);
@@ -44,16 +44,21 @@
 }
 
 
-	</style>
-    <div class="content-section">
-    		<h2>{{movieName}} : [{{movieRatings}}/10]	</h2> <button class="kc_fab_main_btn" onclick="window.location.href='{{ url_for('addToWatchedList', movies_ID=M_ID)}}';"> + </button> 
-   			<h4> genre: {{movieGenre}} </h4>
-    		<img src = {{poster}} width="300">
-    		<br>
-    		<h4>Synopsis</h4>{{moviePlot}}
-    		<br>
-    		
+</style>
 
-</div>
+    
+    <div class="content-section">
+      <button class="kc_fab_main_btn" onclick="window.location.href='{{ url_for('addToWatchedList', movies_ID=M_ID)}}';">+</button><h2>{{movieName}}</h2>
+      
+        <img src = {{poster}} width="300"><br>
+      <p>
+        <small> IMDB Raiting: {{movieRatings}}/10<br>
+        Genre: {{ movieGenre[0] }} <br>
+      <!-- Put Year: yearVar right here -->
+      </small>
+      </p>
+        <h4>Synopsis</h4>{{moviePlot}}
+        <br>
+    </div>
     
 {% endblock content %}

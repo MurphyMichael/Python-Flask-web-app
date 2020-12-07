@@ -8,8 +8,12 @@ from app.forms import RegistrationForm, LoginForm, UpdateUserAccountForm, ResetF
 from flask_mail import Message
 from flask_login import login_user, current_user, logout_user, login_required
 from omdbapi.movie_search import GetMovie
+import pandas as pd
 import imdb
-
+import datetime as dt
+from ast import literal_eval
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import linear_kernel
 
 
 # route for the homepage
@@ -24,17 +28,38 @@ def Home():
 
     return  render_template('home.html', form=form)
 
+
 @app.route('/results', methods=['GET', 'POST'])
 def Results(search):
     searchStr = search.data['search']
-    #userChoice = search.select.data['choices']
+    userChoice = search.select.data
+    DF_top = pd.DataFrame()
 
     if (len(searchStr) == 0):
-        print(moviesDF_top)
+        DF_empty = moviesDF_top.filter(["poster_path", "title", "genres"])
+        return render_template('results.html', column_names=DF_empty.columns.values, row_data=list(DF_empty.values.tolist()), link_column="poster_path", zip=zip)
+    
+    elif(userChoice == "Title"):
+        DF_Title = moviesDF_top[moviesDF_top['title'].astype(str).str.contains(str(searchStr), case=False)]
+        DF_Title = DF_Title.filter(["poster_path", "title"])
+        #print(DF_top)
 
+        return render_template('results.html', column_names=DF_Title.columns.values, row_data=list(DF_Title.values.tolist()), link_column="poster_path", zip=zip)
+    
+    elif(userChoice == "Year"):
+        DF_Year = moviesDF_top[moviesDF_top['year'] == int(searchStr)]
+        DF_Year = DF_Year.filter(["poster_path", "title", "year"])
+            
+        return render_template('results.html', column_names=DF_Year.columns.values, row_data=list(DF_Year.values.tolist()), link_column="poster_path", zip=zip)
 
-   # moviesDF_top.style.format(make_clickable)
+    elif(userChoice == "Genre"):
+        DF_Genre = moviesDF_top[moviesDF_top['genres'].astype(str).str.contains(str(searchStr), case=False)]
+        DF_Genre = DF_Genre.filter(["poster_path", "title", "genres"])
+
+        return render_template('results.html', column_names=DF_Genre.columns.values, row_data=list(DF_Genre.values.tolist()), link_column="poster_path", zip=zip)
+        
     return render_template('results.html', column_names=moviesDF_top.columns.values, row_data=list(moviesDF_top.values.tolist()), link_column="poster_path", zip=zip)
+
     
 
 def path_to_image_html(posterLink):
@@ -52,12 +77,13 @@ def movie():
     moviePlot = mov['plot outline'] 
     movieRatings = mov['rating']
     movieGenre = mov['genres']
+    movieReleaseDate = mov['year']
     poster = "http://img.omdbapi.com/?i=tt" + M_ID + "&h=600&apikey=2dc44009"
 
 
     
 
-    return render_template('movie.html', M_ID = int(M_ID), movieName=movieName, poster=poster, moviePlot = moviePlot, movieRatings = movieRatings, movieGenre = movieGenre)
+    return render_template('movie.html', M_ID = int(M_ID), movieName=movieName, poster=poster, moviePlot = moviePlot, movieRatings = movieRatings, movieGenre = movieGenre, movieReleaseDate=movieReleaseDate)
 
 
 @app.route('/addToWatchedList', methods=['GET', 'POST'])
@@ -82,6 +108,15 @@ def addToWatchedList():
         db.session.commit()
         return redirect(url_for('Home'))
 
+@app.route('/delete', methods=['GET', 'POST'])
+@login_required
+def DeleteFromWL():
+    movieName = request.args.get('moviename')
+    user = current_user.get_id()
+    movieToDelete = WatchedList.query.filter_by(userID=user, movieName=movieName).first()
+    db.session.delete(movieToDelete)
+    db.session.commit()
+    return render_template('watchedlist.html', data = WatchedList.query.filter_by(userID=current_user.get_id()).all())
 
 # route that displays the register form
 @app.route('/register', methods=['GET','POST'])
@@ -153,9 +188,80 @@ def Account():
 @login_required
 def Watched_List():
     
+    wList = WatchedList.query.filter_by(userID=current_user.get_id()).all()
 
-    return render_template('watchedlist.html', data = WatchedList.query.filter_by(userID=current_user.get_id()).all())
+    userList = []
+    recommend = pd.DataFrame()
+    top_genres = []
 
+    length = len(wList)
+    userList+=[wList[i].movieName for i in range(length)]
+    
+    user_genre=[]
+    DF_Rec = pd.DataFrame()
+
+    tempdf = moviesDF_top.copy()
+    tempdf = tempdf.reset_index(drop=True)
+    
+    tf = TfidfVectorizer(analyzer='word', ngram_range=(1, 3), min_df=0, stop_words='english')
+    matrix = tf.fit_transform(tempdf['genres'])
+    cosine_similarities = linear_kernel(matrix,matrix)
+
+    movie_title = tempdf['title']
+    indices = pd.Series(tempdf.index, index=tempdf['title'])
+
+    recNames = {}
+    temp = []
+    
+    for mov in userList:
+        t = movie_recommend(mov, indices, cosine_similarities, movie_title)
+        t.to_string(index=False)
+        recNames[mov] = t
+
+
+    values = recNames.values()
+    values_list = list(values)
+    values_list[0].tolist()
+    for i in range(len(values_list)):
+        values_list[i] = values_list[i].tolist()
+    final = []
+    for i in values_list:
+        for j in i:
+            final.append(j)
+    print(final)
+
+    recommend = moviesDF_top[moviesDF_top['title'].isin(final)]
+    recommend = recommend.filter(["poster_path", "title"])
+
+
+
+
+
+
+
+
+    
+
+
+    
+    
+    
+    return render_template('watchedlist.html', data = wList, column_names=recommend.columns.values, row_data=list(recommend.values.tolist()), link_column="poster_path", zip=zip)
+
+def movie_recommend(title, indices, cosine_similarities, movie_title):
+
+    idx = indices[title]
+
+    sim_scores = list(enumerate(cosine_similarities[idx]))
+
+    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+
+    sim_scores = sim_scores[1:31]
+
+    movie_indices = [i[0] for i in sim_scores]
+    rec = movie_title.iloc[movie_indices].head(3)
+
+    return rec
 
 # route to request password reset.
 @app.route('/resetpassword', methods=['GET','POST'])
